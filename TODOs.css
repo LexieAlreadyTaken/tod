@@ -45,6 +45,7 @@ ul{
 ul li{
   border-bottom:#12345678 2px dotted;
   position: relative;
+  word-wrap: break-word;
 }
 ul li:last-child{
   border-bottom: 0;

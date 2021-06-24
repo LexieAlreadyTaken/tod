@@ -10,15 +10,20 @@ function autoPlural(num){
   return ""
 }
 
-var eventCount = 0;
-var finishedCount = 0;
+var eventCount = 0
+var finishedCount = 0
+var todos = new Object()
 
 function updateCounts(){
-  $("eventCount").innerHTML = "You have "+ eventCount+" item"+autoPlural(eventCount)+" to do!"
+  eventCount = todos.length
+  finishedCount = Object.values(todos).filter((a)=>a==0).length
+  $("eventCount").innerHTML = "You have "+ finishedCount+" item"+autoPlural(finishedCount)+" to do!"
 }
 
-function syncCookie(name, finished){
-  document.cookie = "name="+name+"; finished="+finished+"; expires=Thu, 18 Dec 2043 12:00:00 GMT"
+function syncCookie(){
+  for(todo in todos){
+  document.cookie = todo+"="+todos[todo]+"; expires=Thu, 18 Dec 2043 12:00:00 GMT"
+  }
 }
 
 function readCookie(){
@@ -27,20 +32,21 @@ function readCookie(){
 }
 
 function toggleFinish(ev){
-  console.log(ev)
   var el = ev.srcElement
+  console.log(el.parentElement)
   if(el.parentElement.getAttribute("class").includes("unfinished")){
     el.innerHTML="√"
     el.parentElement.setAttribute("class","finished")
-    updateCounts(--eventCount)
-    finishedCount++
-    //syncCookie(el.parentElement.chil)
+    todos[el.offsetParent.childNodes[0].innerHTML]=1
+    updateCounts()
+    syncCookie()
   }
   else{
     el.innerHTML="○"
     el.parentElement.setAttribute("class","unfinished")
-    updateCounts(++eventCount)
-    finishedCount--
+    todos[el.offsetParent.childNodes[0].innerHTML]=0
+    updateCounts()
+    syncCookie()
   }
 }
 
@@ -55,8 +61,9 @@ function addTodo(){
   node.setAttribute("class","unfinished")
   $("eventList").appendChild(node)
   $("eventName").value=""
-  updateCounts(++eventCount)
-  syncCookie(text,"0")
+  todos[text] = 0
+  updateCounts()
+  syncCookie()
 
   var a = $all("toggler")
   a[a.length-1].addEventListener("click", function(){toggleFinish(event)})
@@ -67,3 +74,13 @@ $("eventName").addEventListener("keyup",function(event){
     addTodo()
   }
 })
+
+//清除所有cookie函数
+function clearAllCookie() {
+  var keys = document.cookie.match(/[^ =;]+(?=\=)/g);
+  if(keys) {
+    for(var i = keys.length; i--;)
+      document.cookie = keys[i] + '=0;expires=' + new Date(0).toUTCString()
+  }
+}
+
