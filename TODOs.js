@@ -31,7 +31,7 @@ function updateCounts(){
 function syncCookie(){
   clearAllCookie()
   for(todo in todos){
-  document.cookie = todo+"="+todos[todo]+"; expires=Thu, 18 Dec 2043 12:00:00 GMT"
+    document.cookie = todo+"="+todos[todo]+"; expires=Thu, 18 Dec 2043 12:00:00 GMT"
   }
 }
 
@@ -61,6 +61,16 @@ function reSyncData(){
       $("eventList").appendChild(node)
     }
   }
+  var a = $all("toggler")
+  for(i=0;i<a.length;i++){
+    a[i].addEventListener("click", function(){toggleFinish(event)})
+  }
+  a = $("eventList").children
+  for(i=0;i<Object.values(a).length;i++){
+    initSwipe(a[i])
+    initModify(a[i])
+  }
+
   updateCounts()
 }
 
@@ -156,6 +166,29 @@ function toggleFinish(ev){
   }
 }
 
+function hideUnfinished(){
+  var a = $all("unfinished")
+  for(var i=0; i<a.length; i++){
+    a[i].setAttribute("style","display:none;")
+  }
+}
+function hideFinished(){
+  var a = $all("finished")
+  for(var i=0; i<a.length; i++){
+    if(a[i].getAttribute("class")==="finished"){
+      a[i].setAttribute("style","display:none;")
+    }
+  }
+}
+function showAll(){
+  console.log("blur")
+  var a = $("eventList").children
+  for(var i=0; i<a.length; i++){
+    console.log(a[i])
+    a[i].setAttribute("style","display:auto")
+  }
+}
+
 function addTodo(){
   var text = document.getElementById("eventName").value
   if(!text){
@@ -188,16 +221,20 @@ $("eventName").addEventListener("keyup",function(event){
 window.onload = function(){
   reSyncData()
 
-  a = $("eventList").children
-  for(i=0;i<Object.values(a).length;i++){
-    initSwipe(a[i])
-    initModify(a[i])
-  }
+  $("removeFinished").addEventListener("click",function(){
+    for(todo in todos){
+      console.log(todos[todo])
+      if(todos[todo]==1){
+        delete todos[todo]
+      }
+    }
+    syncCookie()
+    reSyncData()
+  })
 
-  var a = $all("toggler")
-  for(i=0;i<a.length;i++){
-    a[i].addEventListener("click", function(){toggleFinish(event)})
-  }
+  $("onlyFinished").addEventListener("click",hideUnfinished)
+  $("onlyUnfinished").addEventListener("click",hideFinished)
+  $("showAll").addEventListener("click",showAll)
   
   document.cookie = "default_unit_second=;expires=Thu, 01 Jan 1970 00:00:00 GMT"
   document.cookie = "NaN=;expires=Thu, 01 Jan 1970 00:00:00 GMT"

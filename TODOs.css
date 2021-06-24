@@ -26,7 +26,7 @@ input{
   border: 0;
   outline: none;
   box-sizing: border-box;
-  padding: 5px 1em;
+  padding: 5px 25px;
   background-color: #fedcba;
   width: 100%;
 }
@@ -59,7 +59,7 @@ li.finished{
   text-decoration: line-through;
   color: #888888;
 }
-#eventCount{
+#bottomSide{
   padding-left: 30px;
   padding-bottom: 20px;
 }
@@ -87,4 +87,13 @@ input.altera{
 }
 input.altera.finished{
   text-decoration:line-through;
+}
+#selector{
+  list-style: disc;
+  font-size: 0.8em;
+  padding: 0 1em;
+}
+#selector li{
+  border:0;
+  text-decoration:underline;
 }
