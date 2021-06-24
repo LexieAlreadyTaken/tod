@@ -26,14 +26,8 @@ function syncCookie(){
   }
 }
 
-function readCookie(){
-  var ck = document.cookie.split(";")
-  console.log(ck)
-}
-
 function toggleFinish(ev){
   var el = ev.srcElement
-  console.log(el.parentElement)
   if(el.parentElement.getAttribute("class").includes("unfinished")){
     el.innerHTML="√"
     el.parentElement.setAttribute("class","finished")
@@ -57,7 +51,7 @@ function addTodo(){
     return
   }
   var node=document.createElement("li")
-  node.innerHTML="<span>"+text+"</span><span class='toggler unfinished'>○</span>"
+  node.innerHTML="<span>"+text+"</span><span class='toggler'>○</span>"
   node.setAttribute("class","unfinished")
   $("eventList").appendChild(node)
   $("eventName").value=""
@@ -84,3 +78,23 @@ function clearAllCookie() {
   }
 }
 
+window.onload = function(){
+  var ck = document.cookie.split("; ")
+  var ia = []
+  for(i in ck){
+    ia = ck[i].split('=')
+    todos[ia[0]]=parseInt(ia[1])
+    var node=document.createElement("li")
+    node.innerHTML="<span>"+ia[0]+"</span><span class='toggler'>"+(parseInt(ia[1])?"√":"○")+"</span>"
+    node.setAttribute("class",parseInt(ia[1])?"finished":"unfinished")
+    $("eventList").appendChild(node)
+  }
+  updateCounts()
+
+  var a = $all("toggler")
+  for(i=0;i<a.length;i++){
+    a[i].addEventListener("click", function(){toggleFinish(event)})
+  }
+  document.cookie = "default_unit_second=;expires=Thu, 01 Jan 1970 00:00:00 GMT"
+  document.cookie = "NaN=;expires=Thu, 01 Jan 1970 00:00:00 GMT"
+}
