@@ -27,6 +27,7 @@ function updateCounts(){
 }
 
 function syncCookie(){
+  clearAllCookie()
   for(todo in todos){
   document.cookie = todo+"="+todos[todo]+"; expires=Thu, 18 Dec 2043 12:00:00 GMT"
   }
@@ -130,7 +131,6 @@ window.onload = function(){
     a[i].addEventListener("touchmove", function (e){
       e.stopPropagation();
       if(e.target.lastChild.localName==="div"){
-        console.log(e.target.lastChild)
         var x = e.touches[0].clientX
         if(e.target.clientWidth>275-x && x<275){
           var node = e.target.lastChild
@@ -143,12 +143,44 @@ window.onload = function(){
           node.innerHTML=""
           if(e.target.clientWidth<=275-x){
             delete todos[e.target.firstChild.innerHTML]
-            document.cookie = e.target.firstChild.innerHTML+"=;expires=Thu, 01 Jan 1970 00:00:00 GMT"
             e.target.remove()
             updateCounts()
+            syncCookie()
           }
         }
       }
+    })
+  }
+
+  
+  for(i=0;i<Object.values(a).length;i++){
+    a[i].firstChild.addEventListener("click",function(e){
+      var par = e.target.parentElement
+      var orig = par.firstChild.innerHTML
+      par.removeChild(par.firstChild)
+      var node = document.createElement("input")
+      node.setAttribute("type","text")
+      node.setAttribute("class","altera")
+      node.setAttribute("value",orig)
+      if(lang){
+        node.setAttribute("placeholder","改改？")
+      }
+      else{
+        node.setAttribute("placeholder","Any change?")
+      }
+      //node.setAttribute("autofocus","true")
+      par.prepend(node)
+      par.firstChild.addEventListener("blur",function(e){
+        var par = e.target.parentElement
+        var val = par.firstChild.value
+        var node = document.createElement("span")
+        node.innerHTML = val
+        par.prepend(node)
+        todos[val]=todos[orig]
+        delete todos[orig]
+        par.removeChild(par.children[1])
+        syncCookie();
+      })
     })
   }
   document.cookie = "default_unit_second=;expires=Thu, 01 Jan 1970 00:00:00 GMT"
