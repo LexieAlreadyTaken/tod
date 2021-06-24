@@ -85,3 +85,6 @@ input.altera{
   background-color:white;
   color:#257747;
 }
+input.altera.finished{
+  text-decoration:line-through;
+}

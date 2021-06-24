@@ -14,8 +14,10 @@ var eventCount = 0
 var finishedCount = 0
 var todos = new Object()
 var lang = false //0:English; 1:Chinese
+var orig = ""
 
 function updateCounts(){
+  delete todos[NaN]
   eventCount = todos.length
   finishedCount = Object.values(todos).filter((a)=>a==0).length
   if(lang){
@@ -33,20 +35,107 @@ function syncCookie(){
   }
 }
 
-function sliding(event){
-  event.parentElement.appendChild()
+//清除所有cookie函数
+function clearAllCookie() {
+  var keys = document.cookie.match(/[^ =;]+(?=\=)/g);
+  if(keys) {
+    for(var i = keys.length; i--;)
+      document.cookie = keys[i] + '=0;expires=' + new Date(0).toUTCString()
+  }
 }
-function slidelete(e){
-  var x = e.touches[0].clientX
-  var node=document.createElement("div")
-  node.setAttribute("style","float: right; height: 100%; width:"+(190-x)+";background-color:red;z-index:0;")
-  //alert(event)
-  /*if(Number(event.duration) > 10){ 
-    //判断是左移还是右移，当偏移量大于10时执行
-    if(event.endPos.x < -100){
-      console.log(event.parentElement)
+
+function reSyncData(){
+  var ck = document.cookie.split("; ")
+  //console.log(ck)
+  var ia = []
+  $("eventList").innerHTML=""
+  for(var i=0; i<ck.length; i++){
+    (ck[i])
+    if(ck[i]!="NaN"){
+      ia = ck[i].split('=')
+      todos[ia[0]]=parseInt(ia[1])
+      var node=document.createElement("li")
+      node.innerHTML="<span>"+ia[0]+"</span><span class='toggler'>"+(parseInt(ia[1])?"√":"○")+"</span>"+
+        "<div class='deleting'></div>"
+      node.setAttribute("class",parseInt(ia[1])?"finished":"unfinished")
+      $("eventList").appendChild(node)
     }
-  }*/
+  }
+  updateCounts()
+}
+
+function initSwipe(x){
+  x.addEventListener("touchstart",function(){
+    var ds = $all("deleting")
+    for(i=0;i<ds.length;i++){
+      ds[i].setAttribute("style","width:0;")
+      ds[i].innerHTML=""
+    }
+  })
+  x.addEventListener("touchmove", function (e){
+    e.stopPropagation();
+    if(e.target.lastChild.localName==="div"){
+      var x = e.touches[0].clientX
+      if(e.target.clientWidth>275-x && x<275){
+        var node = e.target.lastChild
+        node.setAttribute("style","width:"+(275-x)+"px;")
+        node.innerHTML="×"
+      }
+      else if(e.target.clientWidth<=275-x){
+        var node = e.target.lastChild
+        node.setAttribute("style","width:0;")
+        node.innerHTML=""
+        delete todos[String(e.target.firstChild.innerHTML)]
+        e.target.remove()
+        syncCookie()
+        updateCounts()
+      }
+    }
+  })
+}
+
+function initModify(x){
+  x.firstChild.addEventListener("click",function(e){
+    var par = e.target.parentElement
+    console.log(par.getAttribute("class"))
+    var oriv = par.getAttribute("class").includes("unfinished")
+    orig = par.firstChild.innerHTML
+    par.removeChild(par.firstChild)
+    var node = document.createElement("input")
+    node.setAttribute("type","text")
+    node.setAttribute("class","altera")
+    node.setAttribute("value",orig)
+    if(!oriv){
+      node.setAttribute("class","altera finished")
+    }
+    if(lang){
+      node.setAttribute("placeholder","改改？")
+    }
+    else{
+      node.setAttribute("placeholder","Any change?")
+    }
+    par.prepend(node)
+    par.firstChild.addEventListener("blur",function(e){   
+      var par = e.target.parentElement
+      var val = par.firstChild.value
+      var node = document.createElement("span")
+      node.innerHTML = val
+      par.prepend(node)
+      todos[val]=todos[orig]
+      if(val!==orig){
+        delete todos[orig]
+      }
+      par.removeChild(par.children[1])
+      initModify(par)
+      updateCounts()
+      syncCookie()
+    })
+    par.firstChild.addEventListener("keyup",function(e){
+      if(e.keyCode==13){
+        e.target.blur()
+      }
+    })
+  })
 }
 
 function toggleFinish(ev){
@@ -74,9 +163,12 @@ function addTodo(){
     return
   }
   var node=document.createElement("li")
-  node.innerHTML="<span>"+text+"</span><span class='toggler'>○</span>"
+  node.innerHTML="<span>"+text+"</span><span class='toggler'>○</span><div class='deleting'></div>"
   node.setAttribute("class","unfinished")
   $("eventList").appendChild(node)
+  var ita = $("eventList").lastChild
+  initSwipe(ita)
+  initModify(ita)
   $("eventName").value=""
   todos[text] = 0
   updateCounts()
@@ -92,99 +184,24 @@ $("eventName").addEventListener("keyup",function(event){
   }
 })
 
-//清除所有cookie函数
-function clearAllCookie() {
-  var keys = document.cookie.match(/[^ =;]+(?=\=)/g);
-  if(keys) {
-    for(var i = keys.length; i--;)
-      document.cookie = keys[i] + '=0;expires=' + new Date(0).toUTCString()
-  }
-}
 
 window.onload = function(){
-  var ck = document.cookie.split("; ")
-  var ia = []
-  for(i in ck){
-    ia = ck[i].split('=')
-    todos[ia[0]]=parseInt(ia[1])
-    var node=document.createElement("li")
-    node.innerHTML="<span>"+ia[0]+"</span><span class='toggler'>"+(parseInt(ia[1])?"√":"○")+"</span>"+
-      "<div class='deleting'></div>"
-    node.setAttribute("class",parseInt(ia[1])?"finished":"unfinished")
-    $("eventList").appendChild(node)
+  reSyncData()
+
+  a = $("eventList").children
+  for(i=0;i<Object.values(a).length;i++){
+    initSwipe(a[i])
+    initModify(a[i])
   }
-  updateCounts()
 
   var a = $all("toggler")
   for(i=0;i<a.length;i++){
     a[i].addEventListener("click", function(){toggleFinish(event)})
   }
-  a = $("eventList").children
-  for(i=0;i<Object.values(a).length;i++){
-    a[i].addEventListener("touchstart",function(){
-      var ds = $all("deleting")
-      for(i=0;i<ds.length;i++){
-        ds[i].setAttribute("style","width:0;")
-        ds[i].innerHTML=""
-      }
-    })
-    a[i].addEventListener("touchmove", function (e){
-      e.stopPropagation();
-      if(e.target.lastChild.localName==="div"){
-        var x = e.touches[0].clientX
-        if(e.target.clientWidth>275-x && x<275){
-          var node = e.target.lastChild
-          node.setAttribute("style","width:"+(275-x)+"px;")
-          node.innerHTML="×"
-        }
-        else{
-          var node = e.target.lastChild
-          node.setAttribute("style","width:0;")
-          node.innerHTML=""
-          if(e.target.clientWidth<=275-x){
-            delete todos[e.target.firstChild.innerHTML]
-            e.target.remove()
-            updateCounts()
-            syncCookie()
-          }
-        }
-      }
-    })
-  }
-
   
-  for(i=0;i<Object.values(a).length;i++){
-    a[i].firstChild.addEventListener("click",function(e){
-      var par = e.target.parentElement
-      var orig = par.firstChild.innerHTML
-      par.removeChild(par.firstChild)
-      var node = document.createElement("input")
-      node.setAttribute("type","text")
-      node.setAttribute("class","altera")
-      node.setAttribute("value",orig)
-      if(lang){
-        node.setAttribute("placeholder","改改？")
-      }
-      else{
-        node.setAttribute("placeholder","Any change?")
-      }
-      //node.setAttribute("autofocus","true")
-      par.prepend(node)
-      par.firstChild.addEventListener("blur",function(e){
-        var par = e.target.parentElement
-        var val = par.firstChild.value
-        var node = document.createElement("span")
-        node.innerHTML = val
-        par.prepend(node)
-        todos[val]=todos[orig]
-        delete todos[orig]
-        par.removeChild(par.children[1])
-        syncCookie();
-      })
-    })
-  }
   document.cookie = "default_unit_second=;expires=Thu, 01 Jan 1970 00:00:00 GMT"
   document.cookie = "NaN=;expires=Thu, 01 Jan 1970 00:00:00 GMT"
+  document.cookie = "1;expires=Thu, 01 Jan 1970 00:00:00 GMT"
 }
 
 document.addEventListener("click",function(){
