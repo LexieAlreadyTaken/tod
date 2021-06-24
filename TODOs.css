@@ -70,3 +70,13 @@ li.finished{
 #langswc{
   color: #123456;
 }
+.deleting{
+  position: absolute;/*早用这个不就完了嘛！*/
+  top:0;
+  right:0;
+  height: 46px;
+  background-color:#ff333341;
+  color:#ff3333;
+  text-align: right;
+  z-index:0;
+}
