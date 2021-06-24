@@ -13,11 +13,17 @@ function autoPlural(num){
 var eventCount = 0
 var finishedCount = 0
 var todos = new Object()
+var lang = 0 //0:English; 1:Chinese
 
 function updateCounts(){
   eventCount = todos.length
   finishedCount = Object.values(todos).filter((a)=>a==0).length
-  $("eventCount").innerHTML = "You have "+ finishedCount+" item"+autoPlural(finishedCount)+" to do!"
+  if(lang){
+    $("eventCount").innerHTML = "您还有"+finishedCount+"件事要做！"
+  }
+  else{
+    $("eventCount").innerHTML = "You have "+ finishedCount+" item"+autoPlural(finishedCount)+" to do!"
+  }
 }
 
 function syncCookie(){
@@ -98,3 +104,31 @@ window.onload = function(){
   document.cookie = "default_unit_second=;expires=Thu, 01 Jan 1970 00:00:00 GMT"
   document.cookie = "NaN=;expires=Thu, 01 Jan 1970 00:00:00 GMT"
 }
+
+$("langswc").addEventListener("click",function(){
+  lang = !lang
+  console.log(lang)
+  console.log(todos.length)
+  if(lang){
+    $("theH1").innerHTML="待办"
+    $("langswc").innerHTML="English"
+    $("eventName").setAttribute("placeholder","想做什么？")
+    if(todos.length===0){
+      $("eventCount").innerHTML="恭喜！您还有0件事要做！"
+    }
+    else{
+      updateCounts()
+    }
+  }
+  else{
+    $("theH1").innerHTML="TODOs"
+    $("langswc").innerHTML="中文"
+    $("eventName").setAttribute("placeholder","Planning what?")
+    if(todos.length===0){
+      $("eventCount").innerHTML="You have 0 item to do! Congratulations!"
+    }
+    else{
+      updateCounts()
+    }
+  }
+})

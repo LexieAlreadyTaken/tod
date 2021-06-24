@@ -63,3 +63,10 @@ li.finished{
   padding-left: 30px;
   padding-bottom: 20px;
 }
+#langsel{
+  display: flex;
+  flex-direction:row-reverse;
+}
+#langswc{
+  color: #123456;
+}
