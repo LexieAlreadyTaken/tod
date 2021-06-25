@@ -11,7 +11,6 @@ body{
 }
 h1{
   font-size: 75px;
-  /*font-weight: lighter;*/
   padding: 25px;
   margin: 0;
   text-align: center;
@@ -90,10 +89,15 @@ input.altera.finished{
 }
 #selector{
   list-style: disc;
-  font-size: 0.8em;
   padding: 0 1em;
+}
+#eventCont{
+  font-size:1.2em;
 }
 #selector li{
   border:0;
   text-decoration:underline;
+}
+#selector li.cur{
+  font-weight: bold;
 }

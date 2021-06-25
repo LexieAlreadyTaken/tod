@@ -167,13 +167,29 @@ function toggleFinish(ev){
 }
 
 function hideUnfinished(){
-  var a = $all("unfinished")
+  $("onlyFinished").setAttribute("class","cur")
+  $("onlyUnfinished").removeAttribute("class")
+  $("showAll").removeAttribute("class")
+  var a = $("eventList").children
+  for(var i=0; i<a.length; i++){
+    console.log(a[i])
+    a[i].setAttribute("style","display:auto")
+  }
+  a = $all("unfinished")
   for(var i=0; i<a.length; i++){
     a[i].setAttribute("style","display:none;")
   }
 }
 function hideFinished(){
-  var a = $all("finished")
+  $("onlyUnfinished").setAttribute("class","cur")
+  $("onlyFinished").removeAttribute("class")
+  $("showAll").removeAttribute("class")
+  var a = $("eventList").children
+  for(var i=0; i<a.length; i++){
+    console.log(a[i])
+    a[i].setAttribute("style","display:auto")
+  }
+  a = $all("finished")
   for(var i=0; i<a.length; i++){
     if(a[i].getAttribute("class")==="finished"){
       a[i].setAttribute("style","display:none;")
@@ -181,7 +197,9 @@ function hideFinished(){
   }
 }
 function showAll(){
-  console.log("blur")
+  $("showAll").setAttribute("class","cur")
+  $("onlyUnfinished").removeAttribute("class")
+  $("onlyFinished").removeAttribute("class")
   var a = $("eventList").children
   for(var i=0; i<a.length; i++){
     console.log(a[i])
@@ -255,6 +273,10 @@ $("langswc").addEventListener("click",function(){
     $("theH1").innerHTML="待办"
     $("langswc").innerHTML="English"
     $("eventName").setAttribute("placeholder","想做什么？")
+    $("removeFinished").innerHTML="移除已完成"
+    $("onlyFinished").innerHTML="只显示已完成"
+    $("onlyUnfinished").innerHTML="只显示未完成"
+    $("showAll").innerHTML="显示所有"
     if(Object.keys(todos).length===0){
       $("eventCount").innerHTML="恭喜！您还有0件事要做！"
     }
@@ -266,6 +288,10 @@ $("langswc").addEventListener("click",function(){
     $("theH1").innerHTML="TODOs"
     $("langswc").innerHTML="中文"
     $("eventName").setAttribute("placeholder","Planning what?")
+    $("removeFinished").innerHTML="remove finished"
+    $("onlyFinished").innerHTML="only finished"
+    $("onlyUnfinished").innerHTML="only unfinished"
+    $("showAll").innerHTML="show all"
     if(Object.keys(todos).length===0){
       $("eventCount").innerHTML="You have 0 item to do! Congratulations!"
     }
